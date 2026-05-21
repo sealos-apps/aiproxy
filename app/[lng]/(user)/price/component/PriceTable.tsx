@@ -17,7 +17,6 @@ import {
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
-import { CurrencySymbol } from '@sealos/ui';
 import {
   createColumnHelper,
   flexRender,
@@ -26,6 +25,7 @@ import {
 } from '@tanstack/react-table';
 
 import { useTranslationClientSide } from '@/app/i18n/client';
+import { CurrencySymbol } from '@/components/common/CurrencySymbol';
 import { MyTooltip } from '@/components/common/MyTooltip';
 import { useI18n } from '@/providers/i18n/i18nContext';
 import { useBackendStore } from '@/store/backend';

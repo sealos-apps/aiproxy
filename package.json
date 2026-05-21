@@ -1,6 +1,6 @@
 {
   "name": "aiproxy",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -27,8 +27,9 @@
     "@hookform/resolvers": "^3.9.0",
     "@kubernetes/client-node": "^1.1.2",
     "@scalar/api-reference-react": "^0.8.36",
-    "@sealos/shared": "workspace:^",
-    "@sealos/ui": "workspace:*",
+    "@labring/sealos-desktop-sdk": "0.1.21",
+    "@labring/sealos-shared-sdk": "1.0.0",
+    "@labring/sealos-ui": "1.0.2",
     "@tanstack/react-query": "^4.35.3",
     "@tanstack/react-table": "^8.10.7",
     "accept-language": "^3.0.20",
@@ -56,7 +57,7 @@
     "react-markdown": "^8.0.7",
     "react-syntax-highlighter": "^15.5.0",
     "remark-gfm": "^3.0.1",
-    "sealos-desktop-sdk": "workspace:*",
+    "sonner": "^2.0.7",
     "swagger-ui-react": "5.3.2",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.24.5",
@@ -82,5 +83,6 @@
     "@playwright/test": "^1.58.1",
     "@vitest/browser": "4.0.15",
     "@vitest/browser-playwright": "4.0.15"
-  }
+  },
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }

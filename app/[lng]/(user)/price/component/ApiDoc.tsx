@@ -12,7 +12,7 @@ import {
   Flex,
   Text,
 } from '@chakra-ui/react';
-import { useMessage } from '@sealos/ui';
+import { useMessage } from '@labring/sealos-ui';
 
 import { useTranslationClientSide } from '@/app/i18n/client';
 import { useI18n } from '@/providers/i18n/i18nContext';
@@ -524,7 +524,7 @@ const ApiDocDrawer: React.FC<ApiDocDrawerProps> = ({ isOpen, onClose, modelConfi
                               title: t('copySuccess'),
                               isClosable: true,
                               duration: 2000,
-                              position: 'top',
+                              position: 'top-center',
                             });
                           },
                           (err) => {
@@ -533,7 +533,7 @@ const ApiDocDrawer: React.FC<ApiDocDrawerProps> = ({ isOpen, onClose, modelConfi
                               title: t('copyFailed'),
                               description: err?.message || t('copyFailed'),
                               isClosable: true,
-                              position: 'top',
+                              position: 'top-center',
                             });
                           }
                         );
@@ -875,7 +875,7 @@ const ApiDocDrawer: React.FC<ApiDocDrawerProps> = ({ isOpen, onClose, modelConfi
                               title: t('copySuccess'),
                               isClosable: true,
                               duration: 2000,
-                              position: 'top',
+                              position: 'top-center',
                             });
                           },
                           (err) => {
@@ -884,7 +884,7 @@ const ApiDocDrawer: React.FC<ApiDocDrawerProps> = ({ isOpen, onClose, modelConfi
                               title: t('copyFailed'),
                               description: err?.message || t('copyFailed'),
                               isClosable: true,
-                              position: 'top',
+                              position: 'top-center',
                             });
                           }
                         );

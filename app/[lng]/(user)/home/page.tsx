@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { Box, Button, Center, Flex, Text } from '@chakra-ui/react';
-import { CurrencySymbol, MySelect } from '@sealos/ui';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 
 import { getDashboardData } from '@/api/platform';
 import { useTranslationClientSide } from '@/app/i18n/client';
+import { CurrencySymbol } from '@/components/common/CurrencySymbol';
+import MySelect from '@/components/common/MySelect';
 import { useI18n } from '@/providers/i18n/i18nContext';
 import { useBackendStore } from '@/store/backend';
 import { QueryKey } from '@/types/query-key';

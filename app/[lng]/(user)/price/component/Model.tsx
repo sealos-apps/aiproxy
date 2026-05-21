@@ -1,6 +1,6 @@
 'use client';
 import { Badge, Flex, Text } from '@chakra-ui/react';
-import { useMessage } from '@sealos/ui';
+import { useMessage } from '@labring/sealos-ui';
 import { Code } from 'lucide-react';
 import Image, { StaticImageData } from 'next/image';
 
@@ -120,7 +120,7 @@ export const ModelComponent = ({
                   title: t('copySuccess'),
                   isClosable: true,
                   duration: 2000,
-                  position: 'top',
+                  position: 'top-center',
                 });
               },
               (err) => {
@@ -129,7 +129,7 @@ export const ModelComponent = ({
                   title: t('copyFailed'),
                   description: err?.message || t('copyFailed'),
                   isClosable: true,
-                  position: 'top',
+                  position: 'top-center',
                 });
               }
             )

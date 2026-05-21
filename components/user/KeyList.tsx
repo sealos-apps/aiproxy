@@ -29,8 +29,7 @@ import {
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
-import { CurrencySymbol } from '@sealos/ui';
-import { useMessage } from '@sealos/ui';
+import { useMessage } from '@labring/sealos-ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Column,
@@ -43,6 +42,7 @@ import { TFunction } from 'i18next';
 
 import { createToken, deleteToken, getTokens, updateToken } from '@/api/platform';
 import { useTranslationClientSide } from '@/app/i18n/client';
+import { CurrencySymbol } from '@/components/common/CurrencySymbol';
 import { MyTooltip } from '@/components/common/MyTooltip';
 import SwitchPage from '@/components/common/SwitchPage';
 import { useI18n } from '@/providers/i18n/i18nContext';
@@ -166,7 +166,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
         title: t('key.deleteSuccess'),
         isClosable: true,
         duration: 2000,
-        position: 'top',
+        position: 'top-center',
       });
     },
     onError(err: any) {
@@ -175,7 +175,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
         title: t('key.deleteFailed'),
         description: err?.message || t('key.deleteFailed'),
         isClosable: true,
-        position: 'top',
+        position: 'top-center',
       });
     },
   });
@@ -190,7 +190,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
           title: t('key.updateSuccess'),
           isClosable: true,
           duration: 2000,
-          position: 'top',
+          position: 'top-center',
         });
       },
       onError(err: any) {
@@ -199,7 +199,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
           title: t('key.updateFailed'),
           description: err?.message ? t(err.message) : t('key.updateFailed'),
           isClosable: true,
-          position: 'top',
+          position: 'top-center',
         });
       },
     }
@@ -255,7 +255,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
                   title: t('copySuccess'),
                   isClosable: true,
                   duration: 2000,
-                  position: 'top',
+                  position: 'top-center',
                 });
               },
               (err) => {
@@ -264,7 +264,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
                   title: t('copyFailed'),
                   description: err?.message || t('copyFailed'),
                   isClosable: true,
-                  position: 'top',
+                  position: 'top-center',
                 });
               }
             );
@@ -775,7 +775,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
                           title: t('copySuccess'),
                           isClosable: true,
                           duration: 2000,
-                          position: 'top',
+                          position: 'top-center',
                         });
                       },
                       (err) => {
@@ -784,7 +784,7 @@ const ModelKeyTable = ({ t, onOpen }: { t: TFunction; onOpen: () => void }) => {
                           title: t('copyFailed'),
                           description: err?.message || t('copyFailed'),
                           isClosable: true,
-                          position: 'top',
+                          position: 'top-center',
                         });
                       }
                     );
@@ -936,7 +936,7 @@ function CreateKeyModal({
         title: t('key.createSuccess'),
         isClosable: true,
         duration: 2000,
-        position: 'top',
+        position: 'top-center',
       });
       onClose();
     },
@@ -947,7 +947,7 @@ function CreateKeyModal({
         title: t('key.createFailed'),
         description: err instanceof Error ? t(err.message as any) : t('key.createFailed'),
         isClosable: true,
-        position: 'top',
+        position: 'top-center',
       });
     },
   });

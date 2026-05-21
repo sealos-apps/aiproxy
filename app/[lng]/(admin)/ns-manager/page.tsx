@@ -13,8 +13,7 @@ import {
   MenuList,
   Text,
 } from '@chakra-ui/react';
-import { CurrencySymbol } from '@sealos/ui';
-import { useMessage } from '@sealos/ui';
+import { useMessage } from '@labring/sealos-ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ColumnDef,
@@ -25,6 +24,7 @@ import {
 
 import { deleteGroup, getGroups, updateGroupQpm, updateGroupStatus } from '@/api/platform';
 import { useTranslationClientSide } from '@/app/i18n/client';
+import { CurrencySymbol } from '@/components/common/CurrencySymbol';
 import { EditableTextNoLable } from '@/components/common/EditableTextNoLable';
 import SwitchPage from '@/components/common/SwitchPage';
 import { BaseTable } from '@/components/table/BaseTable';
@@ -82,7 +82,7 @@ export default function Home(): React.JSX.Element {
         title: t('nsManager.deleteGroupSuccess'),
         isClosable: true,
         duration: 2000,
-        position: 'top',
+        position: 'top-center',
       });
       queryClient.invalidateQueries([QueryKey.GetGroups]);
     },
@@ -92,7 +92,7 @@ export default function Home(): React.JSX.Element {
         title: t('nsManager.deleteGroupFailed'),
         description: err?.message || t('nsManager.deleteGroupFailed'),
         isClosable: true,
-        position: 'top',
+        position: 'top-center',
       });
     },
   });
@@ -106,7 +106,7 @@ export default function Home(): React.JSX.Element {
           title: t('nsManager.updateGroupStatusSuccess'),
           isClosable: true,
           duration: 2000,
-          position: 'top',
+          position: 'top-center',
         });
         queryClient.invalidateQueries([QueryKey.GetGroups]);
       },
@@ -116,7 +116,7 @@ export default function Home(): React.JSX.Element {
           title: t('nsManager.updateGroupStatusFailed'),
           description: err?.message || t('nsManager.updateGroupStatusFailed'),
           isClosable: true,
-          position: 'top',
+          position: 'top-center',
         });
       },
     }
@@ -131,7 +131,7 @@ export default function Home(): React.JSX.Element {
           title: t('nsManager.updateGroupQpmSuccess'),
           isClosable: true,
           duration: 2000,
-          position: 'top',
+          position: 'top-center',
         });
         queryClient.invalidateQueries([QueryKey.GetGroups]);
       },
@@ -141,7 +141,7 @@ export default function Home(): React.JSX.Element {
           title: t('nsManager.updateGroupQpmFailed'),
           description: err?.message || t('nsManager.updateGroupQpmFailed'),
           isClosable: true,
-          position: 'top',
+          position: 'top-center',
         });
       },
     }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import type { ZodSchema } from 'zod/v3'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
 import {
@@ -12,6 +13,9 @@ import {
 } from '@/lib/v2alpha/error'
 
 export const dynamic = 'force-dynamic'
+
+const toOpenApiSchema = (schema: unknown) =>
+  zodToJsonSchema(schema as ZodSchema, { target: 'openApi3' })
 
 /**
  * GET /api/v2alpha/openapi
@@ -211,7 +215,7 @@ Key points:
               description: 'Bad request - invalid query parameters',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError400Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError400Schema()),
                   examples: {
                     validation_error: {
                       summary: 'Invalid query parameters (page, perPage)',
@@ -230,7 +234,7 @@ Key points:
               description: 'Unauthorized - invalid or missing authentication',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError401Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError401Schema()),
                   examples: {
                     unauthorized: {
                       summary: 'Authentication failed',
@@ -249,7 +253,7 @@ Key points:
               description: 'Internal server error',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError500Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError500Schema()),
                   examples: {
                     server_error: {
                       summary: 'Server error',
@@ -336,7 +340,7 @@ Always returns \`201\`. If a token with the given name already exists it is retu
               description: 'Bad request - validation failed',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError400Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError400Schema()),
                   examples: {
                     invalid_json: {
                       summary: 'Invalid JSON body',
@@ -363,7 +367,7 @@ Always returns \`201\`. If a token with the given name already exists it is retu
               description: 'Unauthorized - invalid or missing authentication',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError401Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError401Schema()),
                   examples: {
                     unauthorized: {
                       summary: 'Authentication failed',
@@ -382,7 +386,7 @@ Always returns \`201\`. If a token with the given name already exists it is retu
               description: 'Internal server error',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError500Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError500Schema()),
                   examples: {
                     server_error: {
                       summary: 'Server error',
@@ -457,7 +461,7 @@ Key points:
               description: 'Bad request - invalid token name',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError400Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError400Schema()),
                   examples: {
                     validation_error: {
                       summary: 'Token name fails validation',
@@ -476,7 +480,7 @@ Key points:
               description: 'Unauthorized - invalid or missing authentication',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError401Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError401Schema()),
                   examples: {
                     unauthorized: {
                       summary: 'Authentication failed',
@@ -495,7 +499,7 @@ Key points:
               description: 'Token not found',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError404Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError404Schema()),
                   examples: {
                     not_found: {
                       summary: 'No token with this exact name exists',
@@ -513,7 +517,7 @@ Key points:
               description: 'Internal server error',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError500Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError500Schema()),
                   examples: {
                     server_error: {
                       summary: 'Server error',
@@ -562,7 +566,7 @@ Key points:
               description: 'Bad request - invalid token name',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError400Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError400Schema()),
                   examples: {
                     validation_error: {
                       summary: 'Invalid token name',
@@ -581,7 +585,7 @@ Key points:
               description: 'Unauthorized - invalid or missing authentication',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError401Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError401Schema()),
                   examples: {
                     unauthorized: {
                       summary: 'Authentication failed',
@@ -600,7 +604,7 @@ Key points:
               description: 'Internal server error',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError500Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError500Schema()),
                   examples: {
                     server_error: {
                       summary: 'Server error',
@@ -652,7 +656,7 @@ Key points:
               description: 'Bad request - invalid token name',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError400Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError400Schema()),
                   examples: {
                     validation_error: {
                       summary: 'Token name fails validation',
@@ -671,7 +675,7 @@ Key points:
               description: 'Unauthorized - invalid or missing authentication',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError401Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError401Schema()),
                   examples: {
                     unauthorized: {
                       summary: 'Authentication failed',
@@ -690,7 +694,7 @@ Key points:
               description: 'Token not found',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError404Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError404Schema()),
                   examples: {
                     not_found: {
                       summary: 'No token with this exact name exists',
@@ -708,7 +712,7 @@ Key points:
               description: 'Internal server error',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError500Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError500Schema()),
                   examples: {
                     server_error: {
                       summary: 'Server error',
@@ -761,7 +765,7 @@ Key points:
               description: 'Bad request - invalid token name',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError400Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError400Schema()),
                   examples: {
                     validation_error: {
                       summary: 'Token name fails validation',
@@ -780,7 +784,7 @@ Key points:
               description: 'Unauthorized - invalid or missing authentication',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError401Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError401Schema()),
                   examples: {
                     unauthorized: {
                       summary: 'Authentication failed',
@@ -799,7 +803,7 @@ Key points:
               description: 'Token not found',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError404Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError404Schema()),
                   examples: {
                     not_found: {
                       summary: 'No token with this exact name exists',
@@ -817,7 +821,7 @@ Key points:
               description: 'Internal server error',
               content: {
                 'application/json': {
-                  schema: zodToJsonSchema(createError500Schema(), { target: 'openApi3' }),
+                  schema: toOpenApiSchema(createError500Schema()),
                   examples: {
                     server_error: {
                       summary: 'Server error',

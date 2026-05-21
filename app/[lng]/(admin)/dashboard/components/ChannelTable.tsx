@@ -19,7 +19,7 @@ import {
   Tr,
   useDisclosure,
 } from '@chakra-ui/react';
-import { useMessage } from '@sealos/ui';
+import { useMessage } from '@labring/sealos-ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Column,
@@ -98,7 +98,7 @@ export default function ChannelTable({
           title: t('channel.updateSuccess'),
           isClosable: true,
           duration: 2000,
-          position: 'top',
+          position: 'top-center',
         });
         queryClient.invalidateQueries([QueryKey.GetChannels]);
         queryClient.invalidateQueries([QueryKey.GetChannelTypeNames]);
@@ -109,7 +109,7 @@ export default function ChannelTable({
           title: t('channel.updateFailed'),
           description: err?.message || t('channel.updateFailed'),
           isClosable: true,
-          position: 'top',
+          position: 'top-center',
         });
       },
     }
@@ -121,7 +121,7 @@ export default function ChannelTable({
         title: t('channel.deleteSuccess'),
         isClosable: true,
         duration: 2000,
-        position: 'top',
+        position: 'top-center',
       });
       queryClient.invalidateQueries([QueryKey.GetChannels]);
       queryClient.invalidateQueries([QueryKey.GetChannelTypeNames]);
@@ -132,7 +132,7 @@ export default function ChannelTable({
         title: t('channel.deleteFailed'),
         description: err?.message || t('channel.deleteFailed'),
         isClosable: true,
-        position: 'top',
+        position: 'top-center',
       });
     },
   });

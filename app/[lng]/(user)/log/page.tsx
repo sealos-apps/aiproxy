@@ -12,13 +12,15 @@ import {
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
-import { CurrencySymbol, MySelect, MyTooltip } from '@sealos/ui';
 import { useQuery } from '@tanstack/react-query';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import dynamic from 'next/dynamic';
 
 import { getEnabledMode, getTokens, getUserLogs } from '@/api/platform';
 import { useTranslationClientSide } from '@/app/i18n/client';
+import { CurrencySymbol } from '@/components/common/CurrencySymbol';
+import MySelect from '@/components/common/MySelect';
+import { MyTooltip } from '@/components/common/MyTooltip';
 import SelectDateRange from '@/components/common/SelectDateRange';
 import { SingleSelectComboboxUnstyle } from '@/components/common/SingleSelectComboboxUnStyle';
 import SwitchPage from '@/components/common/SwitchPage';

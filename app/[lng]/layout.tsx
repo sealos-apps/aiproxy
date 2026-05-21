@@ -4,6 +4,7 @@ import Script from 'next/script';
 
 import { useTranslationServerSide } from '@/app/i18n/server';
 import { fallbackLng, languages } from '@/app/i18n/settings';
+import MessageToaster from '@/components/common/MessageToaster';
 import InitializeApp from '@/components/InitializeApp';
 import ChakraProviders from '@/providers/chakra/providers';
 import { I18nProvider } from '@/providers/i18n/i18nContext';
@@ -55,6 +56,7 @@ export default async function RootLayout({
             <QueryProvider>
               <InitializeApp />
               {children}
+              <MessageToaster />
             </QueryProvider>
           </ChakraProviders>
         </I18nProvider>

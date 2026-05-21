@@ -22,5 +22,5 @@
     "__tests__/**/*.ts",
     "__tests__/**/*.tsx"
   ],
-  "extends": "../../tsconfig.web.json"
+  "extends": "./tsconfig.web.json"
 }

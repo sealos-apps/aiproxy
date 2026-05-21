@@ -22,7 +22,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMessage } from '@sealos/ui';
+import { useMessage } from '@labring/sealos-ui';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
@@ -405,7 +405,7 @@ export const UpdateChannelModal = function ({
           message({
             title: t('channels.createFailed'),
             status: 'error',
-            position: 'top',
+            position: 'top-center',
             duration: 2000,
             isClosable: true,
             description: error instanceof Error ? error.message : t('channels.createFailed'),
@@ -415,7 +415,7 @@ export const UpdateChannelModal = function ({
           message({
             title: t('channels.updateFailed'),
             status: 'error',
-            position: 'top',
+            position: 'top-center',
             duration: 2000,
             isClosable: true,
             description: error instanceof Error ? error.message : t('channels.updateFailed'),
@@ -431,7 +431,7 @@ export const UpdateChannelModal = function ({
       message({
         title: firstErrorMessage as string,
         status: 'error',
-        position: 'top',
+        position: 'top-center',
         duration: 2000,
         isClosable: true,
       });

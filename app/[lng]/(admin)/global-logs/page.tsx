@@ -2,12 +2,13 @@
 
 import { useMemo, useState } from 'react';
 import { Box, Button, Flex, Icon, Input, Text } from '@chakra-ui/react';
-import { CurrencySymbol, MyTooltip } from '@sealos/ui';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 
 import { getEnabledMode, getGlobalLogs } from '@/api/platform';
 import { useTranslationClientSide } from '@/app/i18n/client';
+import { CurrencySymbol } from '@/components/common/CurrencySymbol';
+import { MyTooltip } from '@/components/common/MyTooltip';
 import SelectDateRange from '@/components/common/SelectDateRange';
 import { SingleSelectComboboxUnstyle } from '@/components/common/SingleSelectComboboxUnStyle';
 import SwitchPage from '@/components/common/SwitchPage';
