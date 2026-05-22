@@ -3,7 +3,7 @@ set -e
 
 RELEASE_NAME=${RELEASE_NAME:-"aiproxy-web"}
 RELEASE_NAMESPACE=${RELEASE_NAMESPACE:-"aiproxy-system"}
-CHART_PATH=${CHART_PATH:-"./charts/aiproxy"}
+CHART_PATH=${CHART_PATH:-"./charts/aiproxy-web"}
 HELM_OPTS=${HELM_OPTS:-""}
 HELM_OPTIONS=${HELM_OPTIONS:-""}
 AUTO_CONFIG_HELM_OPTS=""
@@ -82,13 +82,13 @@ USER_VALUES_PATH="/root/.sealos/cloud/values/core/${SERVICE_NAME}-values.yaml"
 
 if [ ! -f "${USER_VALUES_PATH}" ]; then
   mkdir -p "$(dirname "${USER_VALUES_PATH}")"
-  cp "./charts/aiproxy/${SERVICE_NAME}-values.yaml" "${USER_VALUES_PATH}"
+  cp "./charts/aiproxy-web/${SERVICE_NAME}-values.yaml" "${USER_VALUES_PATH}"
 fi
 
 HELM_ARGS="${AUTO_CONFIG_HELM_OPTS} ${HELM_OPTIONS} ${HELM_OPTS}"
 
 echo "Deploying Helm chart..."
 helm upgrade -i "${RELEASE_NAME}" -n "${RELEASE_NAMESPACE}" --create-namespace "${CHART_PATH}" \
-  -f "./charts/aiproxy/values.yaml" \
+  -f "./charts/aiproxy-web/values.yaml" \
   -f "${USER_VALUES_PATH}" \
   ${HELM_ARGS}

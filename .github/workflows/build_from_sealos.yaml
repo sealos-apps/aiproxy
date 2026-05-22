@@ -9,50 +9,10 @@ on:
         type: string
 
 env:
-  GHCR_REPO: ghcr.io/${{ github.repository }}
   GHCR_RUNTIME_IMAGE: ghcr.io/${{ github.repository }}/aiproxy
   GHCR_SEALOS_IMAGE: ghcr.io/${{ github.repository }}/aiproxy-cluster
 
 jobs:
-  prepare:
-    name: Prepare Variables
-    runs-on: ubuntu-latest
-    outputs:
-      short_sha: ${{ steps.vars.outputs.short_sha }}
-      cluster_tag: ${{ steps.vars.outputs.cluster_tag }}
-      oss_prefix: ${{ steps.vars.outputs.oss_prefix }}
-    steps:
-      - name: Prepare build variables
-        id: vars
-        run: |
-          set -euo pipefail
-          RAW_VERSION="${{ github.event.inputs.version || '' }}"
-          VERSION="$(echo "${RAW_VERSION}" | xargs)"
-          if [[ "${VERSION}" != "latest" && "${VERSION}" != sha-* && "${VERSION}" != v* ]]; then
-            echo "unsupported version input: ${VERSION}. expected sha-* or v* or empty(latest)." >&2
-            exit 1
-          fi
-
-          SHORT_SHA="$(echo "${{ github.sha }}" | cut -c1-7)"
-          echo "short_sha=${SHORT_SHA}" >> "${GITHUB_OUTPUT}"
-
-          if [[ "${VERSION}" == sha-* ]]; then
-            INPUT_SHA="${VERSION#sha-}"
-            if [[ -z "${INPUT_SHA}" ]]; then
-              echo "invalid sha version input: ${VERSION}" >&2
-              exit 1
-            fi
-            CLUSTER_TAG="main-${INPUT_SHA}"
-            OSS_PREFIX="ci/main/${INPUT_SHA}"
-          elif [[ "${VERSION}" == v* ]]; then
-            CLUSTER_TAG="${VERSION}"
-            OSS_PREFIX="release/${CLUSTER_TAG}"
-          fi
-
-          echo "cluster_tag=${CLUSTER_TAG}" >> "${GITHUB_OUTPUT}"
-          echo "oss_prefix=${OSS_PREFIX}" >> "${GITHUB_OUTPUT}"
-
-
   meta:
     name: Release Metadata
     runs-on: ubuntu-latest
@@ -60,30 +20,48 @@ jobs:
       contents: read
     outputs:
       tag_name: ${{ steps.meta.outputs.tag_name }}
+      image_tag: ${{ steps.meta.outputs.image_tag }}
       is_release: ${{ steps.meta.outputs.is_release }}
-      short_sha: ${{ steps.meta.outputs.short_sha }}
-      tag_with_sha: ${{ steps.meta.outputs.tag_with_sha }}
+      oss_prefix: ${{ steps.meta.outputs.oss_prefix }}
+      oss_tag: ${{ steps.meta.outputs.oss_tag }}
     steps:
       - name: Compute tags
         id: meta
         run: |
+          set -euo pipefail
+
           RAW_VERSION="${{ github.event.inputs.version || '' }}"
           TAG_NAME="$(echo "${RAW_VERSION}" | xargs)"
           if [[ "${TAG_NAME}" != sha-* && "${TAG_NAME}" != v* ]]; then
-            echo "unsupported version input: ${TAG_NAME}. expected sha-* or v* ." >&2
+            echo "unsupported version input: ${TAG_NAME}. expected sha-* or v*." >&2
             exit 1
           fi
 
-          if [[ "${TAG_NAME}" == v* ]]; then
-            IS_RELEASE="true"
-          else
+          if [[ "${TAG_NAME}" == sha-* ]]; then
+            INPUT_SHA="${TAG_NAME#sha-}"
+            if [[ -z "${INPUT_SHA}" ]]; then
+              echo "invalid sha version input: ${TAG_NAME}" >&2
+              exit 1
+            fi
             IS_RELEASE="false"
+            IMAGE_TAG="${TAG_NAME}"
+            OSS_TAG="main-${INPUT_SHA}"
+            OSS_PREFIX="ci/main/${INPUT_SHA}"
+          else
+            IS_RELEASE="true"
+            IMAGE_TAG="${TAG_NAME}"
+            OSS_TAG="${TAG_NAME}"
+            OSS_PREFIX="release/${TAG_NAME}"
           fi
-          echo "tag_name=${TAG_NAME}" >> "${GITHUB_OUTPUT}"
-          echo "is_release=${IS_RELEASE}" >> "${GITHUB_OUTPUT}"
 
-  sealos-build:
-    name: Build Sealos Image (${{ matrix.arch }})
+          echo "tag_name=${TAG_NAME}" >> "${GITHUB_OUTPUT}"
+          echo "image_tag=${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "is_release=${IS_RELEASE}" >> "${GITHUB_OUTPUT}"
+          echo "oss_tag=${OSS_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "oss_prefix=${OSS_PREFIX}" >> "${GITHUB_OUTPUT}"
+
+  runtime-build:
+    name: Build Runtime Image (${{ matrix.arch }})
     runs-on: ${{ matrix.runner }}
     needs: [meta]
     permissions:
@@ -99,13 +77,95 @@ jobs:
           - arch: arm64
             platform: linux/arm64
             runner: ubuntu-24.04-arm
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push runtime image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          cache-from: type=gha,scope=runtime-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=runtime-${{ matrix.arch }}
+          platforms: ${{ matrix.platform }}
+          tags: |
+            ${{ env.GHCR_RUNTIME_IMAGE }}:${{ needs.meta.outputs.image_tag }}-${{ matrix.arch }}
+          labels: runnumber=${{ github.run_id }}
+
+  runtime-manifest:
+    name: Publish Runtime Manifests
+    runs-on: ubuntu-latest
+    needs: [meta, runtime-build]
+    permissions:
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create multi-arch manifest
+        run: |
+          set -euo pipefail
+          IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
+          docker buildx imagetools create \
+            -t "${GHCR_RUNTIME_IMAGE}:${IMAGE_TAG}" \
+            "${GHCR_RUNTIME_IMAGE}:${IMAGE_TAG}-amd64" \
+            "${GHCR_RUNTIME_IMAGE}:${IMAGE_TAG}-arm64"
+
+      - name: Update latest tag
+        if: ${{ needs.meta.outputs.is_release == 'true' }}
+        run: |
+          set -euo pipefail
+          IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
+          docker buildx imagetools create \
+            -t "${GHCR_RUNTIME_IMAGE}:latest" \
+            "${GHCR_RUNTIME_IMAGE}:${IMAGE_TAG}-amd64" \
+            "${GHCR_RUNTIME_IMAGE}:${IMAGE_TAG}-arm64"
+
+  sealos-build:
+    name: Build Sealos Image (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    needs: [meta, runtime-manifest]
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Install cache images tools
         run: sudo bash ./.github/scripts/install.sh
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -118,39 +178,39 @@ jobs:
         working-directory: deploy
         run: |
           set -euo pipefail
-          TAG_NAME="${{ needs.meta.outputs.tag_name }}"
+          IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
+          RUNTIME_IMAGE="${GHCR_RUNTIME_IMAGE}:${IMAGE_TAG}"
+
           sudo sealos login -u "${{ github.actor }}" -p "${{ secrets.GITHUB_TOKEN }}" ghcr.io
-          sed -i -E "s#(ghcr.io/labring/sealos-cloud-[^:]+:)latest#\\1${TAG_NAME}#g" Kubefile
+          sed -i -E "s#^image:.*#image: ${RUNTIME_IMAGE}#g" charts/aiproxy-web/values.yaml
+          sudo sealos registry save --registry-dir=registry --arch ${{ matrix.arch }} .
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push sealos image (arch)
+      - name: Build and push sealos image
         uses: docker/build-push-action@v6
         with:
           context: ./deploy
           file: ./deploy/Kubefile
           push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=sealos-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=sealos-${{ matrix.arch }}
           platforms: ${{ matrix.platform }}
           tags: |
-            ${{ env.GHCR_SEALOS_IMAGE }}:${{ needs.meta.outputs.tag_name }}-${{ matrix.arch }}
+            ${{ env.GHCR_SEALOS_IMAGE }}:${{ needs.meta.outputs.image_tag }}-${{ matrix.arch }}
           labels: runnumber=${{ github.run_id }}
 
       - name: Save sealos image package
         run: |
           set -euo pipefail
-          TAG_NAME="${{ needs.meta.outputs.tag_name }}"
-          docker pull "${GHCR_SEALOS_IMAGE}:${TAG_NAME}-${{ matrix.arch }}"
+          IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
+          docker pull "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-${{ matrix.arch }}"
           mkdir -p release-assets
-          docker save "${GHCR_SEALOS_IMAGE}:${TAG_NAME}-${{ matrix.arch }}" | gzip > "release-assets/aiproxy-cluster-${TAG_NAME}-${{ matrix.arch }}.tar.gz"
+          docker save "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-${{ matrix.arch }}" | gzip > "release-assets/aiproxy-cluster-${IMAGE_TAG}-${{ matrix.arch }}.tar.gz"
 
       - name: Upload sealos image package
         uses: actions/upload-artifact@v4
         with:
-          name: sealos-image-${{ needs.meta.outputs.tag_name }}-${{ matrix.arch }}
-          path: release-assets/aiproxy-cluster-${{ needs.meta.outputs.tag_name }}-${{ matrix.arch }}.tar.gz
+          name: sealos-image-${{ needs.meta.outputs.image_tag }}-${{ matrix.arch }}
+          path: release-assets/aiproxy-cluster-${{ needs.meta.outputs.image_tag }}-${{ matrix.arch }}.tar.gz
           if-no-files-found: error
           retention-days: 14
 
@@ -174,89 +234,61 @@ jobs:
       - name: Create multi-arch manifest
         run: |
           set -euo pipefail
-          TAG_NAME="${{ needs.meta.outputs.tag_name }}"
+          IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
           docker buildx imagetools create \
-            -t "${GHCR_SEALOS_IMAGE}:${TAG_NAME}" \
-            "${GHCR_SEALOS_IMAGE}:${TAG_NAME}-amd64" \
-            "${GHCR_SEALOS_IMAGE}:${TAG_NAME}-arm64"
+            -t "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}" \
+            "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-amd64" \
+            "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-arm64"
 
       - name: Update latest tag
         if: ${{ needs.meta.outputs.is_release == 'true' }}
         run: |
           set -euo pipefail
-          TAG_NAME="${{ needs.meta.outputs.tag_name }}"
+          IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
           docker buildx imagetools create \
             -t "${GHCR_SEALOS_IMAGE}:latest" \
-            "${GHCR_SEALOS_IMAGE}:${TAG_NAME}-amd64" \
-            "${GHCR_SEALOS_IMAGE}:${TAG_NAME}-arm64"
+            "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-amd64" \
+            "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-arm64"
 
   sync-image-aliyun:
+    name: Sync Sealos Packages to OSS
     runs-on: ubuntu-latest
-    needs: [prepare, meta, sealos-manifest]
+    needs: [meta, sealos-manifest]
     permissions:
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         arch: [amd64, arm64]
     steps:
-      - name: Download sealos packages
+      - name: Download sealos package
         uses: actions/download-artifact@v4
         with:
           path: release-assets
-          pattern: sealos-image-${{ needs.meta.outputs.tag_name }}-*
+          pattern: sealos-image-${{ needs.meta.outputs.image_tag }}-${{ matrix.arch }}
           merge-multiple: true
+
       - name: Install oss tools
         run: |
           set -euo pipefail
-          sudo -v ; curl https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
-
+          sudo -v
+          curl -fsSL https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
 
       - name: Sync to OSS
         run: |
           set -euo pipefail
-          TAR_NAME="release-assets/aiproxy-cluster-${{ needs.meta.outputs.tag_name }}-${{ matrix.arch }}.tar.gz"
+          TAR_NAME="release-assets/aiproxy-cluster-${{ needs.meta.outputs.image_tag }}-${{ matrix.arch }}.tar.gz"
+          OSS_PREFIX="${{ needs.meta.outputs.oss_prefix }}"
+          OSS_TAR_NAME="aiproxy-cluster-${{ needs.meta.outputs.oss_tag }}-${{ matrix.arch }}.tar.gz"
+
           md5sum "${TAR_NAME}" > "${TAR_NAME}.md5"
-          OSS_PREFIX="${{ needs.prepare.outputs.oss_prefix }}"
-          OSS_TAR_NAME="aiproxy-cluster-${{ needs.prepare.outputs.cluster_tag }}-${{ matrix.arch }}.tar"
-          if [[ -f "${TAR_NAME}" ]]; then
-            ossutil64 cp -f -e ${{ secrets.OSS_ENDPOINT }} \
-                -i ${{ secrets.OSS_ACCESS_KEY_ID }} \
-                -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} \
-                "${TAR_NAME}" \
-                "oss://${{ vars.OSS_BUCKET }}/${OSS_PREFIX}/${OSS_TAR_NAME}"
-            ossutil64 cp -f -e ${{ secrets.OSS_ENDPOINT }} \
-                -i ${{ secrets.OSS_ACCESS_KEY_ID }} \
-                -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} \
-                "${TAR_NAME}.md5" \
-                "oss://${{ vars.OSS_BUCKET }}/${OSS_PREFIX}/${OSS_TAR_NAME}.md5"
-          fi
-  
-#  release-assets:
-#    name: Publish Release Assets
-#    runs-on: ubuntu-latest
-#    needs: [meta, sealos-build]
-#    if: ${{ needs.meta.outputs.is_release == 'true' }}
-#    permissions:
-#      contents: write
-#    steps:
-#      - name: Download sealos packages
-#        uses: actions/download-artifact@v4
-#        with:
-#          path: release-assets
-#          pattern: sealos-image-${{ needs.meta.outputs.tag_name }}-*
-#          merge-multiple: true
-#
-#      - name: Create Release with sealos packages
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          tag_name: ${{ needs.meta.outputs.tag_name }}
-#          name: ${{ needs.meta.outputs.tag_name }}
-#          draft: false
-#          prerelease: false
-#          generate_release_notes: true
-#          files: |
-#            release-assets/**/aiproxy-cluster-${{ needs.meta.outputs.tag_name }}-amd64.tar.gz
-#            release-assets/**/aiproxy-cluster-${{ needs.meta.outputs.tag_name }}-arm64.tar.gz
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ossutil64 cp -f -e "${{ secrets.OSS_ENDPOINT }}" \
+            -i "${{ secrets.OSS_ACCESS_KEY_ID }}" \
+            -k "${{ secrets.OSS_ACCESS_KEY_SECRET }}" \
+            "${TAR_NAME}" \
+            "oss://${{ vars.OSS_BUCKET }}/${OSS_PREFIX}/${OSS_TAR_NAME}"
+          ossutil64 cp -f -e "${{ secrets.OSS_ENDPOINT }}" \
+            -i "${{ secrets.OSS_ACCESS_KEY_ID }}" \
+            -k "${{ secrets.OSS_ACCESS_KEY_SECRET }}" \
+            "${TAR_NAME}.md5" \
+            "oss://${{ vars.OSS_BUCKET }}/${OSS_PREFIX}/${OSS_TAR_NAME}.md5"
