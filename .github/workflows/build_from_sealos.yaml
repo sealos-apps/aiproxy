@@ -1,11 +1,14 @@
 name: Build Sealos from Sealos
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       version:
         description: 'Build version, supports sha-xxx or v5.xxx.'
-        required: true
+        required: false
         type: string
 
 env:
@@ -31,6 +34,10 @@ jobs:
           set -euo pipefail
 
           RAW_VERSION="${{ github.event.inputs.version || '' }}"
+          if [[ -z "$(echo "${RAW_VERSION}" | xargs)" ]]; then
+            RAW_VERSION="sha-${GITHUB_SHA}"
+          fi
+
           TAG_NAME="$(echo "${RAW_VERSION}" | xargs)"
           if [[ "${TAG_NAME}" != sha-* && "${TAG_NAME}" != v* ]]; then
             echo "unsupported version input: ${TAG_NAME}. expected sha-* or v*." >&2
