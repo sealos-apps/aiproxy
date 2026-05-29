@@ -35,7 +35,7 @@ jobs:
 
           RAW_VERSION="${{ github.event.inputs.version || '' }}"
           if [[ -z "$(echo "${RAW_VERSION}" | xargs)" ]]; then
-            RAW_VERSION="sha-${GITHUB_SHA}"
+            RAW_VERSION="sha-${GITHUB_SHA:0:7}"
           fi
 
           TAG_NAME="$(echo "${RAW_VERSION}" | xargs)"
@@ -50,6 +50,8 @@ jobs:
               echo "invalid sha version input: ${TAG_NAME}" >&2
               exit 1
             fi
+            INPUT_SHA="${INPUT_SHA:0:7}"
+            TAG_NAME="sha-${INPUT_SHA}"
             IS_RELEASE="false"
             IMAGE_TAG="${TAG_NAME}"
             OSS_TAG="main-${INPUT_SHA}"
