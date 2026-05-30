@@ -18,7 +18,7 @@ metadata:
       large_client_header_buffers 4 128k;
 spec:
   rules:
-    - host: {{ include "aiproxy.fullname" . }}.{{.Values.cloudDomain}}
+    - host: {{ include "aiproxy.webHost" . | quote }}
       http:
         paths:
           - pathType: Prefix
@@ -28,7 +28,9 @@ spec:
                 name: {{ include "aiproxy.fullname" . }}
                 port:
                   number: 3000
+  {{- if not (eq (toString .Values.disableHttps) "true") }}
   tls:
     - hosts:
-        - {{ include "aiproxy.fullname" . }}.{{.Values.cloudDomain}}
-      secretName: wildcard-cert
+        - {{ include "aiproxy.webHost" . | quote }}
+      secretName: {{ .Values.certSecretName | quote }}
+  {{- end }}
