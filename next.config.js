@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 
-const path = require('path')
-
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: false,
@@ -12,8 +10,7 @@ const nextConfig = {
     '@labring/sealos-desktop-sdk',
   ],
   experimental: {
-    // this includes files from the monorepo base two directories up
-    outputFileTracingRoot: path.join(__dirname, '../../'),
+    outputFileTracingRoot: __dirname,
   },
   async rewrites() {
     return [

@@ -16,7 +16,7 @@ async function batchOption(batchOptionData: BatchOptionData): Promise<string> {
 
     const token = global.AppConfig?.auth.aiProxyBackendKey
     const response = await fetch(url.toString(), {
-      method: 'PUT',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `${token}`,
