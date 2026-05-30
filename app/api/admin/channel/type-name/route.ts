@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { ChannelTypeMapName } from '@/types/admin/channels/channelInfo'
+import { ChannelType, ChannelTypeMapName } from '@/types/admin/channels/channelInfo'
 import { ApiProxyBackendResp, ApiResp } from '@/types/api'
 import { parseJwtToken } from '@/utils/backend/auth'
 import { isAdmin } from '@/utils/backend/isAdmin'
@@ -8,16 +8,45 @@ import { isAdmin } from '@/utils/backend/isAdmin'
 export const dynamic = 'force-dynamic'
 
 type ApiProxyBackendChannelTypeMapNameResponse = ApiProxyBackendResp<ChannelTypeMapName>
+type ApiProxyBackendChannelTypeMetasResponse = ApiProxyBackendResp<
+  Record<string, { name?: string }>
+>
 
 export type GetChannelTypeNamesResponse = ApiResp<ChannelTypeMapName>
 
 async function fetchChannelTypeNames(): Promise<ChannelTypeMapName | undefined> {
   try {
+    const typeMetasUrl = new URL(
+      `/api/channels/type_metas`,
+      global.AppConfig?.backend.aiproxyInternal || global.AppConfig?.backend.aiproxy
+    )
+    const token = global.AppConfig?.auth.aiProxyBackendKey
+    const typeMetasResponse = await fetch(typeMetasUrl.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `${token}`,
+      },
+      cache: 'no-store',
+    })
+
+    if (typeMetasResponse.ok) {
+      const result: ApiProxyBackendChannelTypeMetasResponse = await typeMetasResponse.json()
+      if (!result.success) {
+        throw new Error(result.message || 'admin channels api:ai proxy backend error')
+      }
+      return Object.entries(result.data || {}).reduce<ChannelTypeMapName>((acc, [type, meta]) => {
+        if (meta.name) {
+          acc[type as ChannelType] = meta.name
+        }
+        return acc
+      }, {})
+    }
+
     const url = new URL(
       `/api/channels/type_names`,
       global.AppConfig?.backend.aiproxyInternal || global.AppConfig?.backend.aiproxy
     )
-    const token = global.AppConfig?.auth.aiProxyBackendKey
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
