@@ -3,6 +3,10 @@
 
 replicas: 2
 
+cloudPort: ""
+httpPort: ""
+disableHttps: false
+
 resources:
   requests:
     cpu: 50m
@@ -12,6 +16,6 @@ resources:
     memory: 512Mi
 
 aiproxy:
-  CURRENCY_SYMBOL: ""
+  NODE_TLS_REJECT_UNAUTHORIZED: "1"
   IS_INVITATION_ACTIVE: "false"
   DOC_URL: "https://sealos.run/docs/guides/ai-proxy"

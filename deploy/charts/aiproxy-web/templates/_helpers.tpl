@@ -56,3 +56,44 @@ Create the name of the service account to use
 {{- define "aiproxy.serviceAccountName" -}}
 {{- default (include "aiproxy.fullname" .) .Values.serviceAccount.name }}
 {{- end }}
+
+{{/*
+Create external URLs that follow the Sealos global HTTP settings.
+*/}}
+{{- define "aiproxy.webHost" -}}
+{{- printf "%s.%s" (include "aiproxy.fullname" .) .Values.cloudDomain -}}
+{{- end }}
+
+{{- define "aiproxy.backendHost" -}}
+{{- printf "aiproxy.%s" .Values.cloudDomain -}}
+{{- end }}
+
+{{- define "aiproxy.scheme" -}}
+{{- if eq (toString .Values.disableHttps) "true" -}}http{{- else -}}https{{- end -}}
+{{- end }}
+
+{{- define "aiproxy.externalPort" -}}
+{{- $scheme := include "aiproxy.scheme" . -}}
+{{- $port := toString .Values.cloudPort -}}
+{{- if eq $scheme "http" -}}
+{{- $port = toString .Values.httpPort -}}
+{{- end -}}
+{{- if or (and (eq $scheme "https") (or (eq $port "") (eq $port "443"))) (and (eq $scheme "http") (or (eq $port "") (eq $port "80"))) -}}
+{{- "" -}}
+{{- else -}}
+{{- $port -}}
+{{- end -}}
+{{- end }}
+
+{{- define "aiproxy.externalPortSuffix" -}}
+{{- $port := include "aiproxy.externalPort" . -}}
+{{- if $port -}}:{{ $port }}{{- end -}}
+{{- end }}
+
+{{- define "aiproxy.webExternalURL" -}}
+{{- include "aiproxy.scheme" . -}}://{{ include "aiproxy.webHost" . }}{{ include "aiproxy.externalPortSuffix" . }}
+{{- end }}
+
+{{- define "aiproxy.backendExternalURL" -}}
+{{- include "aiproxy.scheme" . -}}://{{ include "aiproxy.backendHost" . }}{{ include "aiproxy.externalPortSuffix" . }}
+{{- end }}

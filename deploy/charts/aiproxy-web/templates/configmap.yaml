@@ -3,14 +3,15 @@ data:
   AI_PROXY_BACKEND_KEY: "{{.Values.aiproxy.AI_PROXY_BACKEND_KEY}}"
   APP_TOKEN_JWT_KEY: "{{.Values.aiproxy.APP_TOKEN_JWT_KEY}}"
   CURRENCY_SYMBOL: "{{.Values.aiproxy.CURRENCY_SYMBOL}}"
-  AI_PROXY_BACKEND: https://aiproxy.{{.Values.cloudDomain}}
+  NODE_TLS_REJECT_UNAUTHORIZED: "{{.Values.aiproxy.NODE_TLS_REJECT_UNAUTHORIZED}}"
+  AI_PROXY_BACKEND: {{ include "aiproxy.backendExternalURL" . | quote }}
   AI_PROXY_BACKEND_INTERNAL: "http://aiproxy.{{.Release.Namespace}}.svc:3000"
-  ADMIN_NAMESPACES: "ns-admin"
-  IS_INVITATION_ACTIVE: "false"
-  DOC_URL: "https://sealos.run/docs/guides/ai-proxy"
+  ADMIN_NAMESPACES: "{{.Values.aiproxy.ADMIN_NAMESPACES}}"
+  IS_INVITATION_ACTIVE: "{{.Values.aiproxy.IS_INVITATION_ACTIVE}}"
+  DOC_URL: "{{.Values.aiproxy.DOC_URL}}"
   {{- if ne .Values.aiproxy.CURRENCY_SYMBOL "usd" }}
-  ACCOUNT_SERVER: "http://account-service.account-system.svc:2333"
-  ACCOUNT_SERVER_TOKEN_JWT_KEY: ""
+  ACCOUNT_SERVER: "{{.Values.aiproxy.ACCOUNT_SERVER}}"
+  ACCOUNT_SERVER_TOKEN_JWT_KEY: "{{.Values.aiproxy.ACCOUNT_SERVER_TOKEN_JWT_KEY}}"
   {{- end }}
 kind: ConfigMap
 metadata:
