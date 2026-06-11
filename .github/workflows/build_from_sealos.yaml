@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  release:
+    types:
+      - published
   workflow_dispatch:
     inputs:
       version:
@@ -25,6 +28,8 @@ jobs:
       tag_name: ${{ steps.meta.outputs.tag_name }}
       image_tag: ${{ steps.meta.outputs.image_tag }}
       is_release: ${{ steps.meta.outputs.is_release }}
+      checkout_ref: ${{ steps.meta.outputs.checkout_ref }}
+      update_latest: ${{ steps.meta.outputs.update_latest }}
       oss_prefix: ${{ steps.meta.outputs.oss_prefix }}
       oss_tag: ${{ steps.meta.outputs.oss_tag }}
     steps:
@@ -33,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          RAW_VERSION="${{ github.event.inputs.version || '' }}"
+          RAW_VERSION="${{ github.event.inputs.version || github.event.release.tag_name || '' }}"
           if [[ -z "$(echo "${RAW_VERSION}" | xargs)" ]]; then
             RAW_VERSION="sha-${GITHUB_SHA:0:7}"
           fi
@@ -54,11 +59,19 @@ jobs:
             TAG_NAME="sha-${INPUT_SHA}"
             IS_RELEASE="false"
             IMAGE_TAG="${TAG_NAME}"
+            CHECKOUT_REF="${GITHUB_SHA}"
+            UPDATE_LATEST="false"
             OSS_TAG="main-${INPUT_SHA}"
             OSS_PREFIX="ci/main/${INPUT_SHA}"
           else
             IS_RELEASE="true"
             IMAGE_TAG="${TAG_NAME}"
+            CHECKOUT_REF="refs/tags/${TAG_NAME}"
+            if [[ "${TAG_NAME}" =~ ^v[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+              UPDATE_LATEST="true"
+            else
+              UPDATE_LATEST="false"
+            fi
             OSS_TAG="${TAG_NAME}"
             OSS_PREFIX="release/${TAG_NAME}"
           fi
@@ -66,6 +79,8 @@ jobs:
           echo "tag_name=${TAG_NAME}" >> "${GITHUB_OUTPUT}"
           echo "image_tag=${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
           echo "is_release=${IS_RELEASE}" >> "${GITHUB_OUTPUT}"
+          echo "checkout_ref=${CHECKOUT_REF}" >> "${GITHUB_OUTPUT}"
+          echo "update_latest=${UPDATE_LATEST}" >> "${GITHUB_OUTPUT}"
           echo "oss_tag=${OSS_TAG}" >> "${GITHUB_OUTPUT}"
           echo "oss_prefix=${OSS_PREFIX}" >> "${GITHUB_OUTPUT}"
 
@@ -89,6 +104,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.checkout_ref }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -140,7 +157,7 @@ jobs:
             "${GHCR_RUNTIME_IMAGE}:${IMAGE_TAG}-arm64"
 
       - name: Update latest tag
-        if: ${{ needs.meta.outputs.is_release == 'true' }}
+        if: ${{ needs.meta.outputs.update_latest == 'true' }}
         run: |
           set -euo pipefail
           IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
@@ -169,6 +186,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.meta.outputs.checkout_ref }}
 
       - name: Install cache images tools
         run: sudo bash ./.github/scripts/install.sh
@@ -250,7 +269,7 @@ jobs:
             "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-arm64"
 
       - name: Update latest tag
-        if: ${{ needs.meta.outputs.is_release == 'true' }}
+        if: ${{ needs.meta.outputs.update_latest == 'true' }}
         run: |
           set -euo pipefail
           IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
