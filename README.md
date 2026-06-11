@@ -29,6 +29,12 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Release
+
+Publish release builds from a GitHub Release, not from a tag alone. The `Build Sealos from Sealos` workflow runs on published releases and builds the runtime image, the Sealos cluster image, Actions artifacts for the packaged cluster image, and OSS uploads under `release/<tag>/`.
+
+Use `workflow_dispatch` only as a fallback. It accepts `version=sha-<short-sha>` for CI-style packages under `ci/main/<sha>/`, or `version=<v-tag>` for release-style packages. Prerelease tags such as `v5.1.2-rc6-alpha1` do not update `latest`; only stable `vX.Y.Z` tags do.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
