@@ -230,9 +230,19 @@ jobs:
         run: |
           set -euo pipefail
           IMAGE_TAG="${{ needs.meta.outputs.image_tag }}"
-          docker pull "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-${{ matrix.arch }}"
+          IMAGE_REF="${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-${{ matrix.arch }}"
+          for attempt in {1..12}; do
+            if docker pull "${IMAGE_REF}"; then
+              break
+            fi
+            if [ "${attempt}" -eq 12 ]; then
+              echo "failed to pull ${IMAGE_REF} after ${attempt} attempts" >&2
+              exit 1
+            fi
+            sleep 10
+          done
           mkdir -p release-assets
-          docker save "${GHCR_SEALOS_IMAGE}:${IMAGE_TAG}-${{ matrix.arch }}" | gzip > "release-assets/aiproxy-cluster-${IMAGE_TAG}-${{ matrix.arch }}.tar.gz"
+          docker save "${IMAGE_REF}" | gzip > "release-assets/aiproxy-cluster-${IMAGE_TAG}-${{ matrix.arch }}.tar.gz"
 
       - name: Upload sealos image package
         uses: actions/upload-artifact@v4
