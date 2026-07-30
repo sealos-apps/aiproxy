@@ -22,6 +22,10 @@ const nextConfig = {
         source: '/api/v2alpha/openapi.json',
         destination: '/api/v2alpha/openapi',
       },
+      {
+        source: '/healthz',
+        destination: '/api/healthz',
+      },
     ]
   },
 }
