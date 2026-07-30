@@ -1,8 +1,8 @@
 FROM scratch
 
-COPY --from=ghcr.io/labring/aiproxy-cluster:0.5.8 registry registry
-COPY --from=ghcr.io/labring/aiproxy-cluster:0.5.8 charts charts
-COPY --from=ghcr.io/labring/aiproxy-cluster:0.5.8 install.sh install-aiproxy.sh
+COPY --from=ghcr.io/labring/aiproxy-cluster:0.6.8 registry registry
+COPY --from=ghcr.io/labring/aiproxy-cluster:0.6.8 charts charts
+COPY --from=ghcr.io/labring/aiproxy-cluster:0.6.8 install.sh install-aiproxy.sh
 COPY . .
 
 CMD ["bash install-aiproxy.sh && bash aiproxy-web-entrypoint.sh"]
