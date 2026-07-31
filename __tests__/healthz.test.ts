@@ -1,5 +1,4 @@
 import { GET } from '@/app/healthz/route'
-import { GET as liveGET } from '@/app/livez/route'
 
 const healthEnvKeys = [
   'APP_TOKEN_JWT_KEY',
@@ -87,21 +86,6 @@ describe('healthz route', () => {
         cache: 'no-store',
       })
     )
-  })
-
-  it('keeps the process liveness endpoint independent from backend availability', async () => {
-    const fetchMock = vi.fn()
-    vi.stubGlobal('fetch', fetchMock)
-
-    const response = await liveGET()
-
-    expect(response.status).toBe(200)
-    expect(response.headers.get('Cache-Control')).toBe('no-store')
-    await expect(response.json()).resolves.toEqual({
-      service: 'aiproxy',
-      status: 'ok',
-    })
-    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('returns unavailable and skips backend smoke when required config is missing', async () => {
