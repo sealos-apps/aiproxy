@@ -22,7 +22,14 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Health Check
 
-The web service exposes `/healthz` for Kubernetes startup, liveness, and readiness probes. It returns `200` with `{"service":"aiproxy","status":"ok"}` plus `Cache-Control: no-store`.
+The web service exposes `/livez` for Kubernetes startup and liveness probes, and `/healthz` for readiness and Sealos-style availability checks. `/healthz` validates required runtime configuration, performs a short read-only smoke request against the AI Proxy backend, and returns `200` only when the web service is ready to serve traffic. Failed checks return `503` with a structured `checks` list and `Cache-Control: no-store`; secret values are never included in the response.
+
+`/healthz` requires `APP_TOKEN_JWT_KEY`, `AI_PROXY_BACKEND_KEY`, a valid `AI_PROXY_BACKEND_INTERNAL` or `AI_PROXY_BACKEND` URL, and at least one non-empty `ADMIN_NAMESPACES` entry. When `CURRENCY_SYMBOL` is not `usd`, it also requires a valid `ACCOUNT_SERVER` URL and `ACCOUNT_SERVER_TOKEN_JWT_KEY`.
+
+```bash
+curl -i http://localhost:3000/livez
+curl -i http://localhost:3000/healthz
+```
 
 ## Learn More
 
