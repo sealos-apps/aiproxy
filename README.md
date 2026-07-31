@@ -22,7 +22,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Health Check
 
-The web service exposes `/healthz` for Kubernetes startup, liveness, and readiness probes. It rewrites to `/api/healthz` and returns `200` with `{"service":"aiproxy","status":"ok"}` plus `Cache-Control: no-store`.
+The web service exposes `/healthz` for Kubernetes startup, liveness, and readiness probes. It returns `200` with `{"service":"aiproxy","status":"ok"}` plus `Cache-Control: no-store`.
 
 ## Learn More
 
