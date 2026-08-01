@@ -11,6 +11,30 @@ resources:
 
 image: ghcr.io/labring/sealos-aiproxy-frontend:latest
 
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  periodSeconds: 5
+  failureThreshold: 24
+  timeoutSeconds: 3
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 3
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 3
+
 cloudDomain: 127.0.0.1.nip.io
 cloudPort: ""
 httpPort: ""
