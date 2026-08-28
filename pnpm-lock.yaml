@@ -36,11 +36,11 @@ importers:
         specifier: ^1.1.2
         version: 1.4.0
       '@labring/sealos-desktop-sdk':
-        specifier: 0.1.21
-        version: 0.1.21(@kubernetes/client-node@1.4.0)
+        specifier: 0.1.23
+        version: 0.1.23(@kubernetes/client-node@1.4.0)
       '@labring/sealos-shared-sdk':
         specifier: 1.0.0
-        version: 1.0.0(6uouj24n3dkykw45cjcqvrbhja)
+        version: 1.0.0(yz73sjkpez74iqnr4zjamihgri)
       '@labring/sealos-ui':
         specifier: 1.0.2
         version: 1.0.2(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react-hook-form@7.76.0(react@18.3.1))(react@18.3.1)(sonner@2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(yaml@2.9.0)
@@ -814,8 +814,8 @@ packages:
   '@kubernetes/client-node@1.4.0':
     resolution: {integrity: sha512-Zge3YvF7DJi264dU1b3wb/GmzR99JhUpqTvp+VGHfwZT+g7EOOYNScDJNZwXy9cszyIGPIs0VHr+kk8e95qqrA==}
 
-  '@labring/sealos-desktop-sdk@0.1.21':
-    resolution: {integrity: sha512-Mg/1Z1U09tAT8ajwMxKpTNCXJ/oHeRSSQbzSPIluc36Ns9tq0MlyYdwX3RKn1z8sO5SdkzNUHWvIpNIwTgh5+Q==}
+  '@labring/sealos-desktop-sdk@0.1.23':
+    resolution: {integrity: sha512-Ri5TEgJj9hHgmEofbCqlKFzDoHcaJeJQWLo0srq0xLyM4D4pFJ4lyL9tNB0N/7SSZCN4cVGbi1rFOIoghFID3Q==}
     peerDependencies:
       '@kubernetes/client-node': ^0.18.1
 
@@ -6665,7 +6665,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@labring/sealos-desktop-sdk@0.1.21(@kubernetes/client-node@1.4.0)':
+  '@labring/sealos-desktop-sdk@0.1.23(@kubernetes/client-node@1.4.0)':
     dependencies:
       '@kubernetes/client-node': 1.4.0
       axios: 1.16.1
@@ -6677,9 +6677,9 @@ snapshots:
       - debug
       - supports-color
 
-  '@labring/sealos-shared-sdk@1.0.0(6uouj24n3dkykw45cjcqvrbhja)':
+  '@labring/sealos-shared-sdk@1.0.0(yz73sjkpez74iqnr4zjamihgri)':
     dependencies:
-      '@labring/sealos-desktop-sdk': 0.1.21(@kubernetes/client-node@1.4.0)
+      '@labring/sealos-desktop-sdk': 0.1.23(@kubernetes/client-node@1.4.0)
       '@tanstack/react-query': 4.44.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       immer: 10.2.0
       js-yaml: 4.1.1
