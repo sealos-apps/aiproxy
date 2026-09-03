@@ -44,6 +44,8 @@ certSecretName: "wildcard-cert"
 suffix:
 
 aiproxy:
+  # 允许作为 iframe 父页面的精确 origin，包含协议和可选端口。
+  embeddedAllowedOrigins: []
   AI_PROXY_BACKEND_KEY: ""
   APP_TOKEN_JWT_KEY: ""
   AI_PROXY_BACKEND_INTERNAL: "http://aiproxy.aiproxy-system.svc:3000"

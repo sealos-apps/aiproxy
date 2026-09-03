@@ -30,6 +30,10 @@ The web service exposes `/healthz` for Kubernetes startup, liveness, and readine
 curl -i http://localhost:3000/healthz
 ```
 
+## Embedded Iframe
+
+Set `aiproxy.embeddedAllowedOrigins` in deployment values to allow exact parent-page origins. Entries must be complete `http://` or `https://` origins; wildcards, paths, query strings, fragments, credentials, and scheme-less domains are rejected. Both the chart defaults and the offline values seed keep this list empty.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
