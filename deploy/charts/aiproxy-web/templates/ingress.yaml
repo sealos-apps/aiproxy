@@ -1,3 +1,12 @@
+{{- $embeddedAllowedOrigins := join " " .Values.aiproxy.embeddedAllowedOrigins -}}
+{{- $cloudOrigin := printf "%s://%s%s" (include "aiproxy.scheme" .) .Values.cloudDomain (include "aiproxy.externalPortSuffix" .) -}}
+{{- $wildcardCloudOrigin := printf "%s://*.%s%s" (include "aiproxy.scheme" .) .Values.cloudDomain (include "aiproxy.externalPortSuffix" .) -}}
+{{- range $origin := .Values.aiproxy.embeddedAllowedOrigins }}
+{{- $parsedOrigin := urlParse $origin -}}
+{{- if or (not (or (eq $parsedOrigin.scheme "http") (eq $parsedOrigin.scheme "https"))) (eq $parsedOrigin.host "") (contains "*" $origin) (ne $origin (printf "%s://%s" $parsedOrigin.scheme $parsedOrigin.host)) }}
+{{- fail "aiproxy.embeddedAllowedOrigins entries must be exact HTTP(S) origins without wildcards, paths, queries, fragments, or credentials" }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -13,6 +22,12 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffer-size: 64k
     nginx.ingress.kubernetes.io/proxy-send-timeout: '300'
     nginx.ingress.kubernetes.io/proxy-read-timeout: '300'
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_clear_headers "X-Frame-Options:";
+      more_set_headers "Content-Security-Policy: frame-ancestors 'self' {{ $cloudOrigin }} {{ $wildcardCloudOrigin }}{{ if $embeddedAllowedOrigins }} {{ $embeddedAllowedOrigins }}{{ end }}";
+    higress.io/response-header-control-remove: X-Frame-Options
+    higress.io/response-header-control-update: |
+      Content-Security-Policy "frame-ancestors 'self' {{ $cloudOrigin }} {{ $wildcardCloudOrigin }}{{ if $embeddedAllowedOrigins }} {{ $embeddedAllowedOrigins }}{{ end }}"
     nginx.ingress.kubernetes.io/server-snippet: |
       client_header_buffer_size 64k;
       large_client_header_buffers 4 128k;
