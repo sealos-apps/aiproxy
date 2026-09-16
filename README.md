@@ -24,7 +24,22 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 The web service exposes `/healthz` for Kubernetes startup, liveness, and readiness probes, and for Sealos-style availability checks. `/healthz` validates required runtime configuration, performs a short read-only smoke request against the AI Proxy backend, and returns `200` only when the web service is ready to serve traffic. Failed checks return `503` with a structured `checks` list and `Cache-Control: no-store`; secret values are never included in the response.
 
-`/healthz` requires `APP_TOKEN_JWT_KEY`, `AI_PROXY_BACKEND_KEY`, a valid `AI_PROXY_BACKEND_INTERNAL` or `AI_PROXY_BACKEND` URL, and at least one non-empty `ADMIN_NAMESPACES` entry. When `CURRENCY_SYMBOL` is not `usd`, it also requires a valid `ACCOUNT_SERVER` URL and `ACCOUNT_SERVER_TOKEN_JWT_KEY`.
+`/healthz` requires `APP_TOKEN_JWT_KEY`, `AI_PROXY_BACKEND_KEY`, a valid `AI_PROXY_BACKEND_INTERNAL` or `AI_PROXY_BACKEND` URL, and at least one non-empty `ADMIN_NAMESPACES` entry. When real-name verification is enabled and `CURRENCY_SYMBOL` is not `usd`, it also requires a valid `ACCOUNT_SERVER` URL and `ACCOUNT_SERVER_TOKEN_JWT_KEY`.
+
+## Real-name Verification
+
+Set `REAL_NAME_AUTH_ENABLED=false` to skip Sealos local real-name verification when creating or updating API Keys. Authentication is still required. Currency and Account settings can remain unchanged, including CNY. `/healthz` then omits Account configuration requirements but still checks the AI Proxy backend.
+
+The default is `true`, preserving the existing behavior (including skipping verification when Account configuration is absent). Only `false` (case-insensitive, with surrounding whitespace ignored) disables verification; other values keep the existing policy.
+
+For Helm or the offline `aiproxy-web-values.yaml` overlay:
+
+```yaml
+aiproxy:
+  REAL_NAME_AUTH_ENABLED: false
+```
+
+The installer also accepts the `REAL_NAME_AUTH_ENABLED` environment variable. Restart existing Pods after changing configuration. If temporary `kubectl set env` overrides were used, remove those Deployment overrides when returning to Helm-managed configuration.
 
 ```bash
 curl -i http://localhost:3000/healthz

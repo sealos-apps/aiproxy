@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { getRuntimeAppConfig } from './app-config'
 
 import { getNamespaceFromKubeConfigString, verifyK8sConfigString } from './check-kc'
 
@@ -149,6 +150,10 @@ export async function parseJwtToken(headers: Headers): Promise<string> {
 }
 
 export async function checkSealosUserIsRealName(headers: Headers): Promise<boolean> {
+  if (!getRuntimeAppConfig().auth.realNameAuthEnabled) {
+    return true
+  }
+
   if (!global.AppConfig?.backend.accountServer) {
     console.warn('CheckSealosUserIsRealName: Account server is not set')
     return true

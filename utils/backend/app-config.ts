@@ -5,6 +5,7 @@ const DEFAULT_APP_CONFIG: AppConfigType = {
     docUrl: '',
   },
   auth: {
+    realNameAuthEnabled: true,
     appTokenJwtKey: '',
     aiProxyBackendKey: '',
     accountServerTokenJwtKey: '',
@@ -38,6 +39,9 @@ export function buildAppConfig(env: NodeJS.ProcessEnv = process.env): AppConfigT
     adminNameSpace: [...DEFAULT_APP_CONFIG.adminNameSpace],
     currencySymbol: DEFAULT_APP_CONFIG.currencySymbol,
   }
+
+  // Only an explicit false disables the existing verification policy.
+  appConfig.auth.realNameAuthEnabled = env.REAL_NAME_AUTH_ENABLED?.trim().toLowerCase() !== 'false'
 
   if (env.APP_TOKEN_JWT_KEY) {
     appConfig.auth.appTokenJwtKey = env.APP_TOKEN_JWT_KEY
