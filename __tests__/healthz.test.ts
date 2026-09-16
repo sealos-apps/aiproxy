@@ -1,6 +1,7 @@
 import { GET } from '@/app/healthz/route'
 
 const healthEnvKeys = [
+  'REAL_NAME_AUTH_ENABLED',
   'APP_TOKEN_JWT_KEY',
   'AI_PROXY_BACKEND_KEY',
   'AI_PROXY_BACKEND',
@@ -27,6 +28,7 @@ function restoreEnv() {
 }
 
 function setHealthyEnv() {
+  delete process.env.REAL_NAME_AUTH_ENABLED
   process.env.APP_TOKEN_JWT_KEY = 'app-token-key'
   process.env.AI_PROXY_BACKEND_KEY = 'backend-key'
   process.env.AI_PROXY_BACKEND = 'https://aiproxy.example.com'
@@ -86,6 +88,19 @@ describe('healthz route', () => {
         cache: 'no-store',
       })
     )
+  })
+
+  it('allows CNY without Account configuration when verification is disabled but still checks backend', async () => {
+    process.env.REAL_NAME_AUTH_ENABLED = 'false'
+    delete process.env.ACCOUNT_SERVER
+    delete process.env.ACCOUNT_SERVER_TOKEN_JWT_KEY
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true })))
+    vi.stubGlobal('fetch', fetchMock)
+
+    expect((await GET()).status).toBe(200)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ success: false })))
+    expect((await GET()).status).toBe(503)
   })
 
   it('returns unavailable and skips backend smoke when required config is missing', async () => {

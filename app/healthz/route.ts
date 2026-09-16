@@ -102,7 +102,7 @@ function validateConfig(config: AppConfigType): HealthCheck[] {
     )
   }
 
-  if (config.currencySymbol !== 'usd') {
+  if (config.auth.realNameAuthEnabled && config.currencySymbol !== 'usd') {
     if (hasValue(config.backend.accountServer) && validateUrl(config.backend.accountServer)) {
       checks.push(ok('config.accountServer'))
     } else {

@@ -3,6 +3,7 @@ export type AppConfigType = {
     docUrl: string
   }
   auth: {
+    realNameAuthEnabled: boolean
     appTokenJwtKey: string
     aiProxyBackendKey: string
     accountServerTokenJwtKey: string

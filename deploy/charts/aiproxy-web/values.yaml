@@ -44,6 +44,8 @@ certSecretName: "wildcard-cert"
 suffix:
 
 aiproxy:
+  # Set false to skip local real-name verification without changing currency.
+  REAL_NAME_AUTH_ENABLED: true
   # 允许作为 iframe 父页面的精确 origin，包含协议和可选端口。
   embeddedAllowedOrigins: []
   AI_PROXY_BACKEND_KEY: ""
