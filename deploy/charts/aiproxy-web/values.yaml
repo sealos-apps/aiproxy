@@ -43,6 +43,12 @@ certSecretName: "wildcard-cert"
 
 suffix:
 
+adminApp:
+  # The global entry is intentionally hidden from the Desktop grid, but can be
+  # launched with openapp=system-aiproxy-admin.
+  enabled: true
+  displayType: hidden
+
 aiproxy:
   # Set false to skip local real-name verification without changing currency.
   REAL_NAME_AUTH_ENABLED: true
