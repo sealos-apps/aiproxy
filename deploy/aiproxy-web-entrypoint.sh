@@ -153,6 +153,7 @@ if kubectl get namespace "${RELEASE_NAMESPACE}" >/dev/null 2>&1; then
 fi
 
 adopt_namespaced_resource app-system apps.app.sealos.io aiproxy
+adopt_namespaced_resource app-system apps.app.sealos.io aiproxy-admin
 
 SERVICE_NAME="aiproxy-web"
 USER_VALUES_OLD_PATH=${USER_VALUES_OLD_PATH:-"/root/.sealos/cloud/values/core/${SERVICE_NAME}-values.yaml"}
