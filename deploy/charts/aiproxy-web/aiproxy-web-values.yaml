@@ -44,6 +44,5 @@ aiproxy:
   REAL_NAME_AUTH_ENABLED: false
   # 允许作为 iframe 父页面的精确 origin，包含协议和可选端口。
   embeddedAllowedOrigins: []
-  NODE_TLS_REJECT_UNAUTHORIZED: "1"
   IS_INVITATION_ACTIVE: "false"
   DOC_URL: "https://sealos.run/docs/guides/ai-proxy"
