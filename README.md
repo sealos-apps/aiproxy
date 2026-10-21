@@ -30,7 +30,7 @@ The web service exposes `/healthz` for Kubernetes startup, liveness, and readine
 
 Sealos local real-name verification is disabled by default when creating or updating API Keys. Set `REAL_NAME_AUTH_ENABLED=true` to enable it. Authentication is still required. Currency and Account settings can remain unchanged, including CNY. With verification disabled, `/healthz` omits Account configuration requirements but still checks the AI Proxy backend.
 
-The default is `false`. Only `true` (case-insensitive, with surrounding whitespace ignored) enables verification; unset, empty, or other values leave it disabled. When enabled, the existing policy applies, including skipping verification when Account configuration is absent.
+The runtime and offline `aiproxy-web-values.yaml` defaults are `false`; the base Helm `values.yaml` retains `true`. Only `true` (case-insensitive, with surrounding whitespace ignored) enables verification; unset, empty, or other values leave it disabled. When enabled, the existing policy applies, including skipping verification when Account configuration is absent.
 
 To enable verification through Helm or the offline `aiproxy-web-values.yaml` overlay:
 
