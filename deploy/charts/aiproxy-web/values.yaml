@@ -60,7 +60,6 @@ aiproxy:
   ADMIN_NAMESPACES: "ns-admin"
   ACCOUNT_SERVER_TOKEN_JWT_KEY: ""
   CURRENCY_SYMBOL: ""
-  NODE_TLS_REJECT_UNAUTHORIZED: "1"
   ACCOUNT_SERVER: "http://account-service.account-system.svc:2333"
   IS_INVITATION_ACTIVE: "false"
   DOC_URL: "https://sealos.run/docs/guides/ai-proxy"
