@@ -5,7 +5,7 @@ const DEFAULT_APP_CONFIG: AppConfigType = {
     docUrl: '',
   },
   auth: {
-    realNameAuthEnabled: true,
+    realNameAuthEnabled: false,
     appTokenJwtKey: '',
     aiProxyBackendKey: '',
     accountServerTokenJwtKey: '',
@@ -40,8 +40,8 @@ export function buildAppConfig(env: NodeJS.ProcessEnv = process.env): AppConfigT
     currencySymbol: DEFAULT_APP_CONFIG.currencySymbol,
   }
 
-  // Only an explicit false disables the existing verification policy.
-  appConfig.auth.realNameAuthEnabled = env.REAL_NAME_AUTH_ENABLED?.trim().toLowerCase() !== 'false'
+  // Local real-name verification is opt-in.
+  appConfig.auth.realNameAuthEnabled = env.REAL_NAME_AUTH_ENABLED?.trim().toLowerCase() === 'true'
 
   if (env.APP_TOKEN_JWT_KEY) {
     appConfig.auth.appTokenJwtKey = env.APP_TOKEN_JWT_KEY

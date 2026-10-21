@@ -9,11 +9,11 @@ describe('real-name verification policy', () => {
     vi.unstubAllGlobals()
   })
 
-  it.each([undefined, '', 'true', '0', 'invalid'])('preserves verification for %s', (value) => {
+  it.each(['true', ' TRUE '])('enables verification for %s', (value) => {
     expect(buildAppConfig({ NODE_ENV: 'test', REAL_NAME_AUTH_ENABLED: value }).auth.realNameAuthEnabled).toBe(true)
   })
 
-  it.each(['false', ' FALSE '])('skips Account with CNY and configured credentials for %s', async (value) => {
+  it.each([undefined, '', 'false', ' FALSE ', '0', 'invalid'])('skips Account with CNY and configured credentials for %s', async (value) => {
     global.AppConfig = buildAppConfig({
       NODE_ENV: 'test',
       REAL_NAME_AUTH_ENABLED: value,
@@ -33,6 +33,7 @@ describe('real-name verification policy', () => {
   it.each([true, false])('uses Account result %s when enabled', async (isRealName) => {
     global.AppConfig = buildAppConfig({
       NODE_ENV: 'test',
+      REAL_NAME_AUTH_ENABLED: 'true',
       APP_TOKEN_JWT_KEY: 'test-app-key',
       ACCOUNT_SERVER: 'https://account.example.com',
       ACCOUNT_SERVER_TOKEN_JWT_KEY: 'test-account-key',
