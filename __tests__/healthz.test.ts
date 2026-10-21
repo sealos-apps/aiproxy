@@ -90,8 +90,8 @@ describe('healthz route', () => {
     )
   })
 
-  it('allows CNY without Account configuration when verification is disabled but still checks backend', async () => {
-    process.env.REAL_NAME_AUTH_ENABLED = 'false'
+  it('allows CNY without Account configuration by default but still checks backend', async () => {
+    delete process.env.REAL_NAME_AUTH_ENABLED
     delete process.env.ACCOUNT_SERVER
     delete process.env.ACCOUNT_SERVER_TOKEN_JWT_KEY
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true })))
@@ -131,6 +131,7 @@ describe('healthz route', () => {
   })
 
   it('returns unavailable and skips backend smoke when account config is invalid', async () => {
+    process.env.REAL_NAME_AUTH_ENABLED = 'true'
     process.env.ADMIN_NAMESPACES = ' , '
     process.env.ACCOUNT_SERVER = 'not-a-url'
     const fetchMock = vi.fn()
